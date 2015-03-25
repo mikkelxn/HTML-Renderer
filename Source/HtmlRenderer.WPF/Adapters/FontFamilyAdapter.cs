@@ -10,6 +10,7 @@
 // - Sun Tsu,
 // "The Art of War"
 
+using System.Globalization;
 using System.Windows.Markup;
 using System.Windows.Media;
 using TheArtOfDev.HtmlRenderer.Adapters;
@@ -24,7 +25,7 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
         /// <summary>
         /// Default language to get font family name by
         /// </summary>
-        private static readonly XmlLanguage _xmlLanguage = XmlLanguage.GetLanguage("en-us");
+        private static readonly XmlLanguage _xmlLanguage = XmlLanguage.GetLanguage(CultureInfo.CurrentUICulture.Name);
 
         /// <summary>
         /// the underline win-forms font.
@@ -51,14 +52,21 @@ namespace TheArtOfDev.HtmlRenderer.WPF.Adapters
         {
             get
             {
-                string name =  _fontFamily.FamilyNames[_xmlLanguage];
+                // get the possibly localized font family name
+                string name = _fontFamily.FamilyNames.ContainsKey(_xmlLanguage) 
+                    ? _fontFamily.FamilyNames[_xmlLanguage] 
+                    : _fontFamily.ToString();
+
+                // TODO: Is this necessary?
                 if (string.IsNullOrEmpty(name))
                 {
                     foreach (var familyName in _fontFamily.FamilyNames)
                     {
-                        return familyName.Value;
+                        name = familyName.Value;
+                        break;
                     }
                 }
+
                 return name;
             }
         }
